@@ -1,0 +1,17 @@
+{
+  "name": "creativecoding-course",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "canvas-sketch": "^0.7.3",
+    "canvas-sketch-cli": "^1.11.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
