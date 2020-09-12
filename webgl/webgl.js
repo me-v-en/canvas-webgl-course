@@ -11,6 +11,9 @@ require("three/examples/js/controls/OrbitControls");
 const canvasSketch = require("canvas-sketch");
 
 const settings = {
+    dimensions: [1024, 1024],
+    fps: 24,
+    duration: 4,
     // Make the loop animated
     animate: true,
     // Get a WebGL canvas rather than 2D
@@ -52,14 +55,26 @@ const sketch = ({context}) => {
 
     ////////////////////////////////////////////////////////////////////MESH LOOP
 
+    const meshes = [];
+
     for (let i = 0; i < 50; i++) {
         // Setup a material
-        let material = materials[Math.floor(random.range(0,4))];
+        let material = materials[Math.floor(random.range(0, 3))];
 
         // Setup a mesh with geometry + material
         const mesh = new THREE.Mesh(geometry, material);
 
+
+        // Scale the size
+        mesh.scale.multiplyScalar(0.001);
+
         const positionFactor = 2;
+
+        let x = random.range(-1, 1);
+
+        let y = random.range(-1, 1);
+        let z = random.range(-1, 1);
+        const noise = (random.noise3D(x, y, z) + 1) / 2;
 
         mesh.scale.set(
             random.range(-1, 1),
@@ -68,20 +83,17 @@ const sketch = ({context}) => {
         );
 
         mesh.position.set(
-            random.range(-1, 1),
-            random.range(-1, 1),
-            random.range(-1, 1),
+            x, y, z
         );
 
-        // Scale the size
-        mesh.scale.multiplyScalar(0.5);
-
+        meshes.push({mesh, noise, ...mesh.scale});
         scene.add(mesh);
     }
+    console.table(meshes);
 
     ////////////////////////////////////////////////////////////////////LIGHT
 
-    const light = new THREE.DirectionalLight('white', 1);
+    const light = new THREE.DirectionalLight('white', .5);
     light.position.set(0, 0, 4);
     scene.add(light);
 
@@ -93,7 +105,7 @@ const sketch = ({context}) => {
             const aspect = viewportWidth / viewportHeight;
 
             // Ortho zoom
-            const zoom = 5;
+            const zoom = 2;
 
             // Bounds
             camera.left = -zoom * aspect;
@@ -113,13 +125,27 @@ const sketch = ({context}) => {
             camera.updateProjectionMatrix();
         },
         // Update & render your scene here
-        render({time}) {
-
+        render({playhead}) {
+            // console.log(playhead);
             //Rotate the sphere
             // mesh.rotation.y = time * .2;
             // mesh.rotation.x = time * .5;
             // mesh.rotation.z = time * .5;
             // mesh.position.y = Math.cos(time) * .5;
+            scene.rotation.z = Math.sin(playhead * Math.PI * 2);
+
+            meshes.forEach((m) => {
+                    // console.log(scale);
+                    m.mesh.scale.x = Math.sin(playhead *Math.PI *2 )* m.x  +m.noise;
+                    m.mesh.scale.y = Math.sin(playhead *Math.PI *2 )* m.y  +m.noise;
+                    m.mesh.scale.z = Math.sin(playhead *Math.PI *2 )* m.z  +m.noise;
+
+                    // let rotationY = Math.sin(playhead * Math.PI * 2) * x.noise;
+                    // // console.log(scale);
+                    // x.mesh.rotation.y = rotationY;
+
+                }
+            );
 
             // controls.update();
             renderer.render(scene, camera);
